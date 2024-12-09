@@ -64,6 +64,7 @@ const TrashSortingGame = () => {
   const [gameOver, setGameOver] = useState(false);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [isPerfectScore, setIsPerfectScore] = useState(false);
+  const [askedTrashNames, setAskedTrashNames] = useState<string[]>([]);
 
   // Game configuration
   const MAX_ROUNDS = 10;
@@ -74,14 +75,17 @@ const TrashSortingGame = () => {
     const categories = Object.keys(trashImages);
     const randomCategory =
       categories[Math.floor(Math.random() * categories.length)];
-    const items = trashImages[randomCategory].items;
+    const items = trashImages[randomCategory].items.filter(
+      (item) => !askedTrashNames.includes(item.name)
+    );
     const randomItem = items[Math.floor(Math.random() * items.length)];
+    setAskedTrashNames([...askedTrashNames, randomItem.name]);
 
     return {
       category: randomCategory,
       ...randomItem,
     };
-  }, []);
+  }, [askedTrashNames]);
 
   // Start a new round
   const startNewRound = useCallback(() => {
@@ -159,6 +163,7 @@ const TrashSortingGame = () => {
     setStreak(0);
     setMaxStreak(0);
     setRoundsPlayed(0);
+    setAskedTrashNames([]);
     setGameOver(false);
     setFeedback(null);
     startNewRound();
