@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { CheckCircle2, XCircle } from "lucide-react";
+import Confetti from "react-confetti";
 
 type TrashItem = {
   name: string;
@@ -62,6 +63,7 @@ const TrashSortingGame = () => {
   const [maxStreak, setMaxStreak] = useState(0);
   const [gameOver, setGameOver] = useState(false);
   const [feedback, setFeedback] = useState<Feedback | null>(null);
+  const [isPerfectScore, setIsPerfectScore] = useState(false);
 
   // Game configuration
   const MAX_ROUNDS = 10;
@@ -98,6 +100,13 @@ const TrashSortingGame = () => {
       startNewRound();
     }
   }, [startNewRound, roundsPlayed]);
+
+  // Check for perfect score
+  useEffect(() => {
+    if (gameOver && streak === MAX_ROUNDS) {
+      setIsPerfectScore(true);
+    }
+  }, [gameOver, streak]);
 
   // Handle trash sorting
   interface Feedback {
@@ -158,6 +167,7 @@ const TrashSortingGame = () => {
   if (gameOver) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-green-50 p-4">
+        {isPerfectScore && <Confetti />}
         <div className="bg-white shadow-lg rounded-lg p-8 text-center">
           <h2 className="text-3xl font-bold mb-4">Spel Voorbij!</h2>
           <p className="text-xl mb-4">Je Score: {score}</p>
@@ -199,22 +209,24 @@ const TrashSortingGame = () => {
         </div>
 
         {/* Feedback Area */}
-        {feedback && (
-          <div
-            className={`mb-4 p-3 rounded-lg animate-pulse ${
-              feedback.type === "success"
-                ? "bg-green-100 text-green-800"
-                : "bg-red-100 text-red-800"
-            }`}
-          >
-            {feedback.type === "success" ? (
-              <CheckCircle2 className="inline-block mr-2" />
-            ) : (
-              <XCircle className="inline-block mr-2" />
-            )}
-            {feedback.message}
-          </div>
-        )}
+        <div className="h-12 mb-4">
+          {feedback && (
+            <div
+              className={`p-3 rounded-lg animate-pulse ${
+                feedback.type === "success"
+                  ? "bg-green-100 text-green-800"
+                  : "bg-red-100 text-red-800"
+              }`}
+            >
+              {feedback.type === "success" ? (
+                <CheckCircle2 className="inline-block mr-2" />
+              ) : (
+                <XCircle className="inline-block mr-2" />
+              )}
+              {feedback.message}
+            </div>
+          )}
+        </div>
 
         {/* Current Trash Item */}
         {currentTrash && (
