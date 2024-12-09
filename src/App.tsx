@@ -1,8 +1,21 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { Trash2, CheckCircle2, XCircle } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { CheckCircle2, XCircle } from "lucide-react";
 
-// Hardcoded trash item data
-const trashImages = {
+type TrashItem = {
+  name: string;
+  icon: string;
+};
+
+type TrashCategory = {
+  items: TrashItem[];
+};
+
+type TrashImages = {
+  [category: string]: TrashCategory;
+};
+
+const trashImages: TrashImages = {
+  // Hardcoded trash item data
   GFT: {
     items: [
       { name: "Appel", icon: "🍎" },
@@ -37,12 +50,18 @@ const trashImages = {
 };
 
 const TrashSortingGame = () => {
-  const [currentTrash, setCurrentTrash] = useState(null);
+  type Trash = {
+    name: string;
+    icon: string;
+    category: string;
+  };
+
+  const [currentTrash, setCurrentTrash] = useState<Trash | null>(null);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const [maxStreak, setMaxStreak] = useState(0);
   const [gameOver, setGameOver] = useState(false);
-  const [feedback, setFeedback] = useState(null);
+  const [feedback, setFeedback] = useState<Feedback | null>(null);
 
   // Game configuration
   const MAX_ROUNDS = 10;
@@ -81,7 +100,12 @@ const TrashSortingGame = () => {
   }, [startNewRound, roundsPlayed]);
 
   // Handle trash sorting
-  const handleTrashSort = (selectedCategory) => {
+  interface Feedback {
+    type: "success" | "failure";
+    message: string;
+  }
+
+  const handleTrashSort = (selectedCategory: string) => {
     if (!currentTrash) return;
 
     if (selectedCategory === currentTrash.category) {
@@ -96,10 +120,11 @@ const TrashSortingGame = () => {
       });
 
       // Show success feedback
-      setFeedback({
+      const successFeedback: Feedback = {
         type: "success",
         message: `Goed gedaan! (+${pointsEarned} punten)`,
-      });
+      };
+      setFeedback(successFeedback);
 
       // Start next round after a short delay
       setTimeout(startNewRound, 1000);
@@ -108,10 +133,11 @@ const TrashSortingGame = () => {
       setStreak(0);
 
       // Show failure feedback
-      setFeedback({
+      const failureFeedback: Feedback = {
         type: "failure",
         message: `Helaas, dit hoort bij ${currentTrash.category}!`,
-      });
+      };
+      setFeedback(failureFeedback);
 
       // Start next round after a short delay
       setTimeout(startNewRound, 1000);
